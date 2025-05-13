@@ -1,11 +1,508 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Task Management App</title>
+  <style>
+    /* Styles with mobile responsiveness */
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      background: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px;
+    }
+
+    #root {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      width: 100%;
+      max-width: 450px;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      color: #3f51b5;
+      margin-bottom: 24px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    input, textarea {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    button {
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      background: #3f51b5;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:disabled {
+      background: #a1a1a1;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) {
+      background: #303f9f;
+    }
+
+    .error {
+      color: #f44336;
+      margin-top: -8px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+
+    .task-list {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .task {
+      padding: 16px;
+      background: #e8eaf6;
+      border-radius: 8px;
+      box-shadow: inset 0 0 0 1px #c5cae9;
+    }
+
+    .task.completed {
+      background: #c8e6c9;
+      text-decoration: line-through;
+    }
+
+    .task h3 {
+      margin: 0 0 8px 0;
+    }
+
+    .task-buttons {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .task-buttons button {
+      flex: 1;
+      font-size: 0.9rem;
+    }
+
+    nav {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    nav button {
+      background: transparent;
+      color: #3f51b5;
+      font-weight: 700;
+      padding: 6px 12px;
+      border: 2px solid #3f51b5;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    nav button:hover {
+      background: #3f51b5;
+      color: white;
+    }
+
+    @media (max-width: 400px) {
+      #root {
+        padding: 16px;
+      }
+      button {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    
+  <div id="root"></div>
+
+  <!-- React and Babel CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+
+    const { useState, useEffect } = React;
+
+    // Backend API base URL
+    const API_BASE = 'http://localhost:4000/api';
+
+    // Helper to get token
+    const getToken = () => localStorage.getItem('token');
+
+    // Save token
+    const saveToken = token => localStorage.setItem('token', token);
+
+    // Remove token
+    const removeToken = () => localStorage.removeItem('token');
+
+    function App() {
+      const [view, setView] = useState('login'); // login | register | dashboard
+      const [token, setToken] = useState(getToken());
+
+      useEffect(() => {
+        if (token) {
+          setView('dashboard');
+        } else {
+          setView('login');
+        }
+      }, [token]);
+
+      const handleLogout = () => {
+        removeToken();
+        setToken(null);
+        setView('login');
+      };
+
+      if (view === 'login') {
+        return <Login onLogin={setToken} onSwitch={() => setView('register')} />;
+      }
+      if (view === 'register') {
+        return <Register onRegister={() => setView('login')} onSwitch={() => setView('login')} />;
+      }
+      if (view === 'dashboard') {
+        return <Dashboard token={token} onLogout={handleLogout} />;
+      }
+      return null;
+    }
+
+    function Login({ onLogin, onSwitch }) {
+      const [username, setUsername] = useState('');
+      const [password, setPassword] = useState('');
+      const [error, setError] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const handleSubmit = async e => {
+        e.preventDefault();
+        setError('');
+        if (!username || !password) {
+          setError('Please enter username and password');
+          return;
+        }
+        setLoading(true);
+        try {
+          const res = await fetch(`${API_BASE}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            saveToken(data.token);
+            onLogin(data.token);
+          } else {
+            setError(data.message || 'Login failed');
+          }
+        } catch (err) {
+          setError('Network error');
+        }
+        setLoading(false);
+      };
+
+      return (
+        <>
+          <h1>Login</h1>
+          <form onSubmit={handleSubmit}>
+            <input 
+              type="text" 
+              placeholder="Username" 
+              value={username} 
+              onChange={e => setUsername(e.target.value)} 
+              disabled={loading} 
+            />
+            <input 
+              type="password" 
+              placeholder="Password" 
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+              disabled={loading} 
+            />
+            {error && <div className="error">{error}</div>}
+            <button type="submit" disabled={loading}>
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
+          </form>
+          <p style={{ marginTop: '12px', fontSize: '0.9rem' }}>
+            Don't have an account? <button onClick={onSwitch}>Register</button>
+          </p>
+        </>
+      );
+    }
+
+    function Register({ onRegister, onSwitch }) {
+      const [username, setUsername] = useState('');
+      const [password, setPassword] = useState('');
+      const [confirmPassword, setConfirmPassword] = useState('');
+      const [error, setError] = useState('');
+      const [success, setSuccess] = useState('');
+      const [loading, setLoading] = useState(false);
+
+      const handleSubmit = async e => {
+        e.preventDefault();
+        setError('');
+        setSuccess('');
+        if (!username || !password) {
+          setError('Please enter username and password');
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+        setLoading(true);
+        try {
+          const res = await fetch(`${API_BASE}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setSuccess('Registration successful. You can now login.');
+            setUsername('');
+            setPassword('');
+            setConfirmPassword('');
+            if (onRegister) onRegister();
+          } else {
+            setError(data.message || 'Registration failed');
+          }
+        } catch (err) {
+          setError('Network error');
+        }
+        setLoading(false);
+      };
+
+      return (
+        <>
+          <h1>Register</h1>
+          <form onSubmit={handleSubmit}>
+            <input 
+              type="text" 
+              placeholder="Username" 
+              value={username} 
+              onChange={e => setUsername(e.target.value)} 
+              disabled={loading} 
+            />
+            <input 
+              type="password" 
+              placeholder="Password" 
+              value={password} 
+              onChange={e => setPassword(e.target.value)} 
+              disabled={loading} 
+            />
+            <input 
+              type="password" 
+              placeholder="Confirm Password" 
+              value={confirmPassword} 
+              onChange={e => setConfirmPassword(e.target.value)} 
+              disabled={loading} 
+            />
+            {error && <div className="error">{error}</div>}
+            {success && <p style={{ color: "#4caf50" }}>{success}</p>}
+            <button type="submit" disabled={loading}>
+              {loading ? 'Registering...' : 'Register'}
+            </button>
+          </form>
+          <p style={{ marginTop: '12px', fontSize: '0.9rem' }}>
+            Already have an account? <button onClick={onSwitch}>Login</button>
+          </p>
+        </>
+      );
+    }
+
+    function Dashboard({ token, onLogout }) {
+      const [tasks, setTasks] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [error, setError] = useState('');
+      const [title, setTitle] = useState('');
+      const [description, setDescription] = useState('');
+      const [editTask, setEditTask] = useState(null);
+
+      const fetchTasks = async () => {
+        setLoading(true);
+        setError('');
+        try {
+          const res = await fetch(`${API_BASE}/tasks`, {
+            headers: { Authorization: 'Bearer ' + token }
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setTasks(data);
+          } else {
+            if (res.status === 401 || res.status === 403) {
+              onLogout();
+            } else {
+              setError(data.message || 'Failed to fetch tasks');
+            }
+          }
+        } catch (err) {
+          setError('Network error');
+        }
+        setLoading(false);
+      };
+
+      useEffect(() => {
+        fetchTasks();
+      }, []);
+
+      const handleCreateOrUpdate = async e => {
+        e.preventDefault();
+        setError('');
+
+        if (!title.trim()) {
+          setError('Title is required');
+          return;
+        }
+
+        try {
+          let res, data;
+          if (editTask) {
+            res = await fetch(`${API_BASE}/tasks/${editTask.id}`, {
+              method: 'PUT',
+              headers: { 
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + token,
+              },
+              body: JSON.stringify({ title, description }),
+            });
+            data = await res.json();
+            if (res.ok) {
+              setTasks(tasks.map(t => t.id === data.id ? data : t));
+              setEditTask(null);
+              setTitle('');
+              setDescription('');
+            } else {
+              setError(data.message || 'Update failed');
+            }
+          } else {
+            res = await fetch(`${API_BASE}/tasks`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                Authorization: 'Bearer ' + token,
+              },
+              body: JSON.stringify({ title, description }),
+            });
+            data = await res.json();
+            if (res.ok) {
+              setTasks([data, ...tasks]);
+              setTitle('');
+              setDescription('');
+            } else {
+              setError(data.message || 'Create failed');
+            }
+          }
+        } catch {
+          setError('Network error');
+        }
+      };
+
+      const handleDelete = async (id) => {
+        if (!window.confirm('Delete this task?')) return;
+        try {
+          const res = await fetch(`${API_BASE}/tasks/${id}`, {
+            method: 'DELETE',
+            headers: { Authorization: 'Bearer ' + token }
+          });
+          const data = await res.json();
+          if (res.ok) {
+            setTasks(tasks.filter(t => t.id !== id));
+          } else {
+            setError(data.message || 'Delete failed');
+          }
+        } catch {
+          setError('Network error');
+        }
+      };
+
+      const handleEdit = (task) => {
+        setEditTask(task);
+        setTitle(task.title);
+        setDescription(task.description);
+      };
+
+      const handleCancelEdit = () => {
+        setEditTask(null);
+        setTitle('');
+        setDescription('');
+        setError('');
+      };
+
+      return (
+        <>
+          <nav>
+            <div>Task Manager</div>
+            <button onClick={onLogout}>Logout</button>
+          </nav>
+
+          <form onSubmit={handleCreateOrUpdate}>
+            <input 
+              type="text" 
+              placeholder="Task title" 
+              value={title} 
+              onChange={e => setTitle(e.target.value)} 
+            />
+            <textarea 
+              rows="3"
+              placeholder="Task description (optional)" 
+              value={description} 
+              onChange={e => setDescription(e.target.value)} 
+            />
+            {error && <div className="error">{error}</div>}
+            <button type="submit">{editTask ? 'Update Task' : 'Add Task'}</button>
+            {editTask && <button type="button" onClick={handleCancelEdit} style={{ marginTop: '8px', background: '#b00020' }}>Cancel</button>}
+          </form>
+
+          {loading && <p>Loading tasks...</p>}
+          {!loading && tasks.length === 0 && <p>No tasks yet. Add some!</p>}
+
+          <div className="task-list">
+            {tasks.map(task => (
+              <div className={`task ${task.status === 'completed' ? 'completed' : ''}`} key={task.id}>
+                <h3>{task.title}</h3>
+                {task.description && <p>{task.description}</p>}
+                <div className="task-buttons">
+                  <button onClick={() => handleEdit(task)}>Edit</button>
+                  <button onClick={() => handleDelete(task.id)} style={{ background: '#d32f2f' }}>Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      );
+    }
+
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
