@@ -1,5 +1,5 @@
 // backend/server.js
-// require('dotenv').config();
+require('dotenv').config();
 const express  = require('express');
 const cors     = require('cors');
 const bcrypt   = require('bcrypt');
@@ -11,7 +11,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const SECRET_KEY = "161c408c36b3e05027e7898dceab8c6382b5aca8f84b2249d8261bf3070ad404";
+const SECRET_KEY = process.env.JWT_SECRET;
 if (!SECRET_KEY) {
   console.error('❌ Missing JWT_SECRET');
   process.exit(1);
