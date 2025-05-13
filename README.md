@@ -61,9 +61,9 @@ A modern, full-stack Task Management Web Application with user authentication an
 - Tasks can be updated or deleted individually.
 - The task list updates reflect changes instantly by fetching fresh data from the backend.
 - Tasks are associated with the authenticated user and remain private.
-
----
 ```
+---
+
 root/
 │
 ├── backend/                # Node.js Express backend
@@ -77,5 +77,5 @@ root/
 └── README.md               # Documentation file
 
 ---
-```
+
 
