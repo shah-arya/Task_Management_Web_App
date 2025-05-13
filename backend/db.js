@@ -1,5 +1,15 @@
 const sqlite3 = require('sqlite3').verbose();
-const DBSOURCE = "db.sqlite";
+
+// new vars
+const path = require('path');
+const os = require('os');
+
+//const DBSOURCE = "db.sqlite";
+
+// updated dbsource
+const DBSOURCE = process.env.NODE_ENV === 'production'
+  ? path.join(os.tmpdir(), 'db.sqlite')
+  : path.join(__dirname, 'db.sqlite');
 
 const db = new sqlite3.Database(DBSOURCE, (err) => {
   if (err) {
