@@ -3,7 +3,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const db = require('./db');
-// const serverless = require('serverless-http');
+const serverless = require('serverless-http');
 
 const app = express();
 app.use(cors());
@@ -120,8 +120,8 @@ app.delete('/api/tasks/:id', authenticateToken, (req, res) => {
 });
 
 // Starts the server
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
-});
-// module.exports = serverless(app);
+// const PORT = process.env.PORT || 4000;
+// app.listen(PORT, () => {
+//   console.log(`Server started on port ${PORT}`);
+// });
+module.exports = serverless(app);
