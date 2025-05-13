@@ -19,7 +19,7 @@ A modern, full-stack Task Management Web Application with user authentication an
   Backend built with Node.js and Express uses JWT tokens to authenticate users and protect API routes.
 
 - **Data Persistence**  
-  SQLite database stores user credentials securely and manages user-specific tasks efficiently.
+  PostGreSQL database stores user credentials securely and manages user-specific tasks efficiently.
 
 ---
 
@@ -31,7 +31,7 @@ A modern, full-stack Task Management Web Application with user authentication an
 |----------------|--------------------------|-------------------------------------------------------------|
 | Frontend       | React.js                 | Interactive UI with components for auth and tasks           |
 | Backend        | Node.js with Express     | RESTful API handling authentication and task management     |
-| Database       | SQLite                   | Lightweight SQL database for storing users and tasks        |
+| Database       | PostGreSQL               | Lightweight SQL database for storing users and tasks        |
 | Authentication | bcrypt + JWT             | Secure password hashing and token-based user authentication |
 | Deployment     | Vercel                   | Live hosting and continuous deployment                      |
 |---------------------------------------------------------------------------------------------------------|
@@ -42,7 +42,7 @@ A modern, full-stack Task Management Web Application with user authentication an
 ## 💡 How It Works: User Authentication Overview
 
 1. Registration  
-   Users sign up with a username and password. The password is hashed using `bcrypt` before being saved to the SQLite database for maximum security.
+   Users sign up with a username and password. The password is hashed using `bcrypt` before being saved to the PostgreSQL database for maximum security.
 
 2. Login  
    On login, the backend verifies the username exists and compares the hashed password with the supplied one securely. On success, a JWT token is generated and sent to the client.
@@ -75,6 +75,8 @@ root/
 │   └── index.html          # Single page React app with inline CSS & JS
 │
 └── README.md               # Documentation file
+│
+└── vercel.json
 ```
 ---
 
