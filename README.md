@@ -54,16 +54,16 @@ A modern, full-stack Task Management Web Application with user authentication an
    Every protected endpoint verifies the JWT token for authenticity and extracts user identity, ensuring users only access their own data.
 
 ---
-```
+
 ## 🎯 Task Management Features
 
 - Users can create new tasks with a title and optional description.
 - Tasks can be updated or deleted individually.
 - The task list updates reflect changes instantly by fetching fresh data from the backend.
 - Tasks are associated with the authenticated user and remain private.
-```
----
 
+---
+```
 root/
 │
 ├── backend/                # Node.js Express backend
@@ -75,7 +75,7 @@ root/
 │   └── index.html          # Single page React app with inline CSS & JS
 │
 └── README.md               # Documentation file
-
+```
 ---
 
 
