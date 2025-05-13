@@ -33,7 +33,7 @@ A modern, full-stack Task Management Web Application with user authentication an
 | Backend        | Node.js with Express     | RESTful API handling authentication and task management     |
 | Database       | SQLite                   | Lightweight SQL database for storing users and tasks        |
 | Authentication | bcrypt + JWT             | Secure password hashing and token-based user authentication |
-| Deployment     | Vercel                   | Live hosting and continuous deployment                      |
+| Deployment     | AWS/none                 | Live hosting and continuous deployment                      |
 |---------------------------------------------------------------------------------------------------------|
  
  ```
