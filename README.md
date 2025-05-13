@@ -35,7 +35,8 @@ A modern, full-stack Task Management Web Application with user authentication an
 | Authentication | bcrypt + JWT             | Secure password hashing and token-based user authentication |
 | Deployment     | Vercel                   | Live hosting and continuous deployment                      |
 |---------------------------------------------------------------------------------------------------------|
-
+ 
+ ```
 ---
 
 ## 💡 How It Works: User Authentication Overview
@@ -53,7 +54,7 @@ A modern, full-stack Task Management Web Application with user authentication an
    Every protected endpoint verifies the JWT token for authenticity and extracts user identity, ensuring users only access their own data.
 
 ---
-
+```
 ## 🎯 Task Management Features
 
 - Users can create new tasks with a title and optional description.
@@ -62,7 +63,7 @@ A modern, full-stack Task Management Web Application with user authentication an
 - Tasks are associated with the authenticated user and remain private.
 
 ---
-
+```
 root/
 │
 ├── backend/                # Node.js Express backend
@@ -76,5 +77,5 @@ root/
 └── README.md               # Documentation file
 
 ---
-
+```
 
