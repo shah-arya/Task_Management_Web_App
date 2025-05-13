@@ -8,9 +8,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const SECRET_KEY = "your-secret-key"; // Change to a secure key for production
+const SECRET_KEY = "161c408c36b3e05027e7898dceab8c6382b5aca8f84b2249d8261bf3070ad404"; // a secure key for production
 
-// Middleware to verify JWT token
+// Middleware to verify the JWT token
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -23,7 +23,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Register new user
+// Register a new user
 app.post('/api/register', async (req, res) => {
   const { username, password } = req.body;
   if (!(username && password)) return res.status(400).json({ message: 'Username and password required' });
@@ -41,7 +41,7 @@ app.post('/api/register', async (req, res) => {
   });
 });
 
-// Login user
+// Logins the user
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   if (!(username && password)) return res.status(400).json({ message: 'Username and password required' });
@@ -59,7 +59,7 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// Get all tasks for logged-in user
+// Get all tasks for the logged-in user
 app.get('/api/tasks', authenticateToken, (req, res) => {
   const query = 'SELECT * FROM tasks WHERE user_id = ? ORDER BY created_at DESC';
   db.all(query, [req.user.id], (err, rows) => {
@@ -68,7 +68,7 @@ app.get('/api/tasks', authenticateToken, (req, res) => {
   });
 });
 
-// Create new task
+// Creates a new task
 app.post('/api/tasks', authenticateToken, (req, res) => {
   const { title, description } = req.body;
   if (!title) return res.status(400).json({ message: 'Title is required' });
@@ -84,7 +84,7 @@ app.post('/api/tasks', authenticateToken, (req, res) => {
   });
 });
 
-// Update a task
+// Updates a task
 app.put('/api/tasks/:id', authenticateToken, (req, res) => {
   const taskId = req.params.id;
   const { title, description, status } = req.body;
@@ -106,7 +106,7 @@ app.put('/api/tasks/:id', authenticateToken, (req, res) => {
   });
 });
 
-// Delete a task
+// Deletes a task
 app.delete('/api/tasks/:id', authenticateToken, (req, res) => {
   const taskId = req.params.id;
 
@@ -118,7 +118,7 @@ app.delete('/api/tasks/:id', authenticateToken, (req, res) => {
   });
 });
 
-// Start server
+// Starts the server
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
